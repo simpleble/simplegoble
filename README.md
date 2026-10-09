@@ -74,10 +74,10 @@ func run() error {
 }
 ```
 
-Build and run your application normally, or explicitly disable cgo:
+Build your application:
 
 ```sh
-CGO_ENABLED=0 go build ./...
+go build ./...
 ```
 
 You can also run the included adapter listing example directly:
