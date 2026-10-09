@@ -15,8 +15,6 @@ state, control scanning, and receive power and scan callbacks through one API.
 
 - **One cross-platform API:** Keep your Bluetooth adapter logic consistent across desktop platforms.
 - **Native underneath:** Use WinRT, CoreBluetooth, and BlueZ through SimpleBLE.
-- **Ordinary Go builds:** Install with `go get` and build without cgo, C/C++ compilers, or native headers.
-- **Libraries included:** Matching native libraries ship with the module and are embedded in your executable.
 
 ## Get started
 
@@ -125,17 +123,11 @@ For backend-specific enumeration, call `GetBackends()` and then
 each owns its native handle. Callbacks run serially on a Go worker and can call
 adapter methods. Keep handlers short. Methods are safe for concurrent use.
 
-## Platforms and deployment
+## Platforms
 
-SimpleGoBLE supports Windows, macOS, and Linux on amd64 and arm64. The executable
-embeds the native libraries for its target. On first use, SimpleGoBLE extracts
-them into the user's cache directory and loads them automatically. That cache
-must be writable. Applications run without downloading native libraries.
-
-Use the platform's Bluetooth stack and application permissions: BlueZ and D-Bus
-on Linux, the Windows Bluetooth stack and Microsoft C++ runtime on Windows, and
-Bluetooth privacy descriptions on macOS. For a custom native build, call
-`Load` with the absolute path to your SimpleCBLE shared library.
+SimpleGoBLE supports Windows, macOS, and Linux on amd64 and arm64.
+See the [usage guide](https://docs.simpleble.org/simplegoble/usage) for Bluetooth
+permissions and platform requirements.
 
 ## Versions
 
