@@ -1,15 +1,170 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/simpleble/simpleble/main/docs/public/simpleBLE-logo-dark.png#gh-light-mode-only" alt="SimpleBLE" width="360">
+  <img src="https://raw.githubusercontent.com/simpleble/simpleble/main/docs/public/simpleBLE-logo.png#gh-dark-mode-only" alt="SimpleBLE" width="360">
+</p>
+
 # SimpleGoBLE
 
-Cgo-free Go bindings for SimpleBLE on Windows, macOS, and Linux.
+**Build Bluetooth once. Ship it everywhere.**
 
-This repository contains the generated Go distribution. Development, tests,
-and release automation live in [simpleble/simpleble](https://github.com/simpleble/simpleble/tree/main/simplegoble).
+SimpleGoBLE brings [SimpleBLE](https://github.com/simpleble/simpleble) to Go on
+Windows, macOS, and Linux. Enumerate Bluetooth backends and adapters, check power
+state, control scanning, and receive power and scan callbacks through one API.
 
-The first packaged Go version has not been published yet. The SimpleBLE CI
-will populate this repository with the binding and its prebuilt native libraries.
+## Why SimpleGoBLE
 
-Versions follow SimpleBLE's `VERSION` file: stable tags are `vX.Y.Z`, and
-main-branch development builds use `vX.Y.Z-devN`. Published tags are immutable.
+- **One cross-platform API:** Keep your Bluetooth adapter logic consistent across desktop platforms.
+- **Native underneath:** Use WinRT, CoreBluetooth, and BlueZ through SimpleBLE.
+- **Ordinary Go builds:** Install with `go get` and build without cgo, C/C++ compilers, or native headers.
+- **Libraries included:** Matching native libraries ship with the module and are embedded in your executable.
 
-Once published, consumers use `go get github.com/simpleble/simplegoble` and
-build normally. Native compilation happens in SimpleBLE CI.
+## Get started
+
+Use Go 1.25 or newer:
+
+```sh
+go get github.com/simpleble/simplegoble
+```
+
+List your Bluetooth adapters:
+
+```go
+package main
+
+import (
+    "fmt"
+    "log"
+
+    ble "github.com/simpleble/simplegoble"
+)
+
+func main() {
+    if err := run(); err != nil {
+        log.Fatal(err)
+    }
+}
+
+func run() error {
+    adapters, err := ble.GetAdapters()
+    if err != nil {
+        return err
+    }
+    defer func() {
+        for _, adapter := range adapters {
+            _ = adapter.Close()
+        }
+    }()
+
+    for _, adapter := range adapters {
+        name, err := adapter.Identifier()
+        if err != nil {
+            return err
+        }
+        address, err := adapter.Address()
+        if err != nil {
+            return err
+        }
+        powered, err := adapter.IsPowered()
+        if err != nil {
+            return err
+        }
+        fmt.Printf("%s (%s), powered: %t\n", name, address, powered)
+    }
+    return nil
+}
+```
+
+Build and run your application normally, or explicitly disable cgo:
+
+```sh
+CGO_ENABLED=0 go build ./...
+```
+
+You can also run the included adapter listing example directly:
+
+```sh
+go run github.com/simpleble/simplegoble/examples/list_adapters
+```
+
+## Scan control and callbacks
+
+Register callbacks on an adapter, then scan for a fixed duration:
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+
+    ble "github.com/simpleble/simplegoble"
+)
+
+func scan(adapter *ble.Adapter) error {
+    if err := adapter.SetCallbackOnScanStart(func() {
+        fmt.Println("Scan started")
+    }); err != nil {
+        return err
+    }
+    if err := adapter.SetCallbackOnScanStop(func() {
+        fmt.Println("Scan stopped")
+    }); err != nil {
+        return err
+    }
+    return adapter.ScanFor(5 * time.Second)
+}
+```
+
+`ScanFor` waits for the requested duration while other goroutines remain runnable.
+Use `ScanStart` and `ScanStop` when your application controls scan timing.
+Power callbacks use `SetCallbackOnPowerOn` and `SetCallbackOnPowerOff`.
+Pass `nil` to a callback setter to clear it.
+
+For backend-specific enumeration, call `GetBackends()` and then
+`backend.Adapters()`. Close every backend and adapter you obtain when finished;
+each owns its native handle. Callbacks run serially on a Go worker and can call
+adapter methods. Keep handlers short. Methods are safe for concurrent use.
+
+## Platforms and deployment
+
+SimpleGoBLE supports Windows, macOS, and Linux on amd64 and arm64. The executable
+embeds the native libraries for its target. On first use, SimpleGoBLE extracts
+them into the user's cache directory and loads them automatically. That cache
+must be writable. Applications run without downloading native libraries.
+
+Use the platform's Bluetooth stack and application permissions: BlueZ and D-Bus
+on Linux, the Windows Bluetooth stack and Microsoft C++ runtime on Windows, and
+Bluetooth privacy descriptions on macOS. For a custom native build, call
+`Load` with the absolute path to your SimpleCBLE shared library.
+
+## Versions
+
+SimpleGoBLE follows SimpleBLE's release versions. Pin a stable release or use
+the latest development build:
+
+```sh
+go get github.com/simpleble/simplegoble@v1.2.1
+go get github.com/simpleble/simplegoble@main
+```
+
+Stable tags use `vX.Y.Z`; development tags use `vX.Y.Z-devN`. Each module includes
+`VERSION` and `SOURCE_REVISION` to identify its native build and source commit.
+Go selects stable releases for `@latest`.
+
+## Documentation and support
+
+- Browse the [Go API reference](https://pkg.go.dev/github.com/simpleble/simplegoble).
+- Read the [SimpleBLE documentation](https://docs.simpleble.org/).
+- Join the [Discord community](https://discord.gg/N9HqNEcvP3).
+- Contribute bindings, tests, and release automation in [simpleble/simpleble](https://github.com/simpleble/simpleble/tree/main/simplegoble).
+- Visit [simpleble.org](https://simpleble.org/) for commercial licensing and professional services.
+
+## License
+
+SimpleGoBLE follows the [SimpleBLE license](https://github.com/simpleble/simpleble/blob/main/LICENSE.md),
+the Business Source License 1.1 (BUSL-1.1). See the included [LICENSE](LICENSE)
+for the complete terms.
+
+---
+
+**SimpleBLE** is a project powered by [The California Open Source Company](https://californiaopensource.com/).
