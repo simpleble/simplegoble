@@ -146,9 +146,10 @@ Go selects stable releases for `@latest`.
 ## Documentation and support
 
 - Browse the [Go API reference](https://pkg.go.dev/github.com/simpleble/simplegoble).
-- Read the [SimpleBLE documentation](https://docs.simpleble.org/).
+- Read the [SimpleGoBLE usage guide](https://docs.simpleble.org/simplegoble/usage).
 - Join the [Discord community](https://discord.gg/N9HqNEcvP3).
-- Contribute bindings, tests, and release automation in [simpleble/simpleble](https://github.com/simpleble/simpleble/tree/main/simplegoble).
+- Browse the [runnable examples](https://github.com/simpleble/simpleble/tree/main/examples/simplegoble).
+- Contribute bindings and tests in [simpleble/simpleble](https://github.com/simpleble/simpleble/tree/main/simplegoble); see the [development and publishing guide](https://github.com/simpleble/simpleble/blob/main/docs/extras/simplegoble-publishing.md).
 - Visit [simpleble.org](https://simpleble.org/) for commercial licensing and professional services.
 
 ## License
