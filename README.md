@@ -118,7 +118,8 @@ of a connected peripheral. `Read`, `WriteRequest`, and `WriteCommand` access
 characteristic values; `ReadDescriptor` and `WriteDescriptor` access
 descriptors. `Notify` and `Indicate` call your function with each value as a
 byte slice, and `Unsubscribe` stops them. Failures are `*ble.Error` values with
-SimpleBLE's error code in `Code`.
+SimpleBLE's error code in `Code`, and methods on closed wrappers return
+`ble.ErrClosed`.
 
 ## Host a GATT service
 
@@ -186,7 +187,7 @@ for the setup each platform needs.
 
 SimpleGoBLE follows SimpleBLE's release versions. `go get` picks the latest
 stable release, `vX.Y.Z`, and development builds of the main branch are tagged
-`vX.Y.Z-devN`:
+`vX.Y.Z-dev.N`:
 
 ```sh
 go get github.com/simpleble/simplegoble@main
